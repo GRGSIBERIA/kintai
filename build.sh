@@ -2,6 +2,6 @@
 
 for file in ./seeder/*
 do
-    cobc -x -F ${file} -o ./bin/seeder/$(basename ${file})
-    ./bin/seeder/$(basename ${file})
+    cobc -x -F ${file} -o ./bin/seeder/$(basename ${file} .cob)
+    ./bin/seeder/$(basename ${file} .cob)
 done
