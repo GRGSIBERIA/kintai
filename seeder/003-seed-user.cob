@@ -17,6 +17,7 @@ data division.
                03 Ilastname pic N(32).
                03 Ipswd pic X(20).
                03 Igender pic 9(2).
+               03 Iaddress pic N(70).
                03 Iemail pic X(254).
                03 Iphone-number pic X(14).
                03 Iroll pic 9(2).
@@ -35,6 +36,7 @@ main-procedure.
        move "茜" to Ifirstname.
        move "1234" to Ipswd.
        move 2 to Igender.
+       move "東京都千代田区１－１" to Iaddress.
        move "fujita@test.jp" to Iemail.
        move "080-1234-5678" to Iphone-number.
        move 1 to Iroll.
@@ -48,6 +50,7 @@ main-procedure.
        move "太郎" to Ifirstname.
        move "1234" to Ipswd.
        move 1 to Igender.
+       move "神奈川県横浜市港区１－１" to Iaddress.
        move "yamada@test.jp" to Iemail.
        move "080-8765-4321" to Iphone-number.
        move 2 to Iroll.
