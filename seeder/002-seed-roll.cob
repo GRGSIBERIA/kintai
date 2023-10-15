@@ -11,14 +11,14 @@ data division.
 file section.
        fd outfile.
            01 Froll.
-               03 Frollid pic 9(2) comp-x.
+               03 Frollid pic 9(2).
                03 Fname pic N(10).
 working-storage section.
        01 key-num pic 9(2).
 
 procedure division.
 main-procedure.
-       display "初期ユーザを追加します"
+       display "初期役職を追加します"
 
        open output outfile.
        move 1 to Frollid.
@@ -55,6 +55,16 @@ main-procedure.
        move "係長" to Fname.
        write Froll.
        display Froll.
+
+       move 98 to Frollid.
+       move "休職" to Fname.
+       write Froll.
+       display Froll.
+
+       move 99 to Frollid.
+       move "退職" to Fname.
+       write Froll.
+       *>display Froll.
 
        close outfile.
        stop run.

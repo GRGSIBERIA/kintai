@@ -34,6 +34,7 @@ main-procedure.
        move "藤田" to Ilastname.
        move "茜" to Ifirstname.
        move "1234" to Ipswd.
+       move 2 to Igender.
        move "fujita@test.jp" to Iemail.
        move "080-1234-5678" to Iphone-number.
        move 1 to Iroll.
@@ -41,4 +42,18 @@ main-procedure.
        write Iuser.
        display Iuser.
 
+       add 1 to Iuserid.
+       move "yamada" to Iusername.
+       move "山田" to Ilastname.
+       move "太郎" to Ifirstname.
+       move "1234" to Ipswd.
+       move 1 to Igender.
+       move "yamada@test.jp" to Iemail.
+       move "080-8765-4321" to Iphone-number.
+       move 2 to Iroll.
+       move function current-date to Ijoin-date.
+       write Iuser.
+       display Iuser.
+
        close outfile.
+       stop run.
