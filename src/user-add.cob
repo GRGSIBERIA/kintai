@@ -68,6 +68,7 @@ working-storage section.
        01 roll-status pic XX.
        01 user-status pic XX.
        01 idx pic 9(7) value 0.
+       01 yesno pic X.
        
 procedure division.
        display "勤怠管理システム".
@@ -179,7 +180,7 @@ occurred-firstname-maximum section.
 occurred-firstname-maximum-exit.
 
 exec-accept-password.
-       display "パスワード:".
+       display "パスワード ([1-20]文字)".
        accept Opswd.
 
        if function length(function trim(Opswd)) < 1 then
@@ -212,71 +213,114 @@ exec-accept-gender.
        end-perform.
        close gender-file.
        accept Ogender. *> ここで入力
-*>
-*>       open read genderfile.
-*>       perform until gender-status == "00"
-*>           read Igender.
-*>           if Igenderid == Fgender
-*>               close genderfile.
-*>               goto exec-accept-roll.  *> 該当項目を見つけた
-*>           end-if.
-*>       end-perform.
-*>       close genderfile.
-*>       display "性別IDが一致しません"
-*>       goto exec-accept-gender.
-*>
-*>exec-accept-roll.
-*>       display "役職ID:".
-*>       
-*>       open read rollfile.
-*>       perform until roll-status == "00"
-*>           read Iroll.
-*>           display Iroll.
-*>       end-perform.
-*>       close rollfile.
-*>       accept Froll. *> ここで入力
-*>
-*>       open read rollfile.
-*>       perform until roll-status == "00"
-*>           read Iroll.
-*>           if Irollid == Froll
-*>               close rollfile.
-*>               goto exec-accept-address. *> 該当項目を見つけた
-*>           end-if.
-*>       end-perform.
-*>       close rollfile.
-*>       display "役職IDが一致しません"
-*>       goto exec-accept-roll.
-*>
-*>exec-accept-address.
-*>       display "住所:".
-*>       accept Faddress.
-*>
-*>       if function length(Faddress) < 1
-*>           display "住所は1文字以上で入力してください".
-*>           goto exec-accept-address.
-*>       end-if.
-*>
-*>       if function length(Faddress) > 70
-*>           display "住所は70文字以下で入力してください".
-*>           goto exec-accept-address.
-*>       end-if.
-*>
-*>exec-accept-email.
-*>       display "メールアドレス:".
-*>       accept Femail.
-*>       
-*>exec-accept-phone.
-*>       display "電話番号:".
-*>       accept Fphone.
-*>       
-*>exec-accept-join.
-*>       display "入社年月日(21桁): (例: YYYYMMDDhhmmss00+0900)".
-*>       accept Fjoin-date.
-*>
-*>
-*>       open output userfile.
-*>           write Fuser.
-*>       close userfile.
+
+       open read gender-file.
+       perform until gender-status == "00"
+           read gender-file
+               not at end perform validate-genderid
+       end-perform.
+
+       close gender-file.
+       display "性別IDが一致しません"
+       go to exec-accept-gender.
+
+validate-genderid section.
+       if Ogender == Fgender-id then
+           go to exec-accept-roll
+       end-if.
+validate-genderid-exit.
+
+exec-accept-roll.
+       close gender-file.
+       display "役職ID:".
+       
+       open read roll-file.
+       perform until roll-status == "00"
+           read roll-file
+               not at end display Froll-rec
+       end-perform.
+       close roll-file.
+       accept Oroll. *> ここで入力
+
+       open read roll-file.
+       perform until roll-status == "00"
+           read roll-file
+               not at end perform validate-rollid
+       end-perform.
+
+       close roll-file.
+       display "役職IDが一致しません"
+       go to exec-accept-roll.
+
+validate-rollid section.
+       if Irollid == Froll
+           goto exec-accept-address *> 該当項目を見つけた
+       end-if.
+validate-rollid-exit.
+
+exec-accept-address.
+       close roll-file.
+       display "住所 ([1-70]文字)".
+       accept Oaddress.
+
+       if function length(function trim(Oaddress)) < 1
+           perform occurred-address-minimum
+       end-if.
+
+       if function length(function trim(Oaddress)) > 70
+           perform occurred-address-maximum
+       end-if.
+
+       go to exec-accept-email.
+
+occurred-address-minimum section.
+       display "住所は1文字以上で入力してください".
+       go to exec-accept-address.
+occurred-address-minimum-exit.
+
+occurred-address-maximum section.
+       display "住所は70文字以下で入力してください".
+       go to exec-accept-address.
+occurred-address-maximum-exit.
+
+exec-accept-email.
+       display "メールアドレス:".
+       accept Oemail.
+       
+exec-accept-phone.
+       display "電話番号:".
+       accept Ophone-number.
+
+exec-accept-join.
+       display "入社年月日(21桁): (例: YYYYMMDDhhmmss00+0900)".
+       accept Ojoin-date.
+
+exec-yesno.
+       display "入力された項目".
+       display Ouserid.
+       display function trim(Ousername).
+       display function trim(Ofirstname).
+       display function trim(Olastname).
+       display function trim(Opswd).
+       display Ogender.
+       display function trim(Oaddress).
+       display function trim(Oemail).
+       display function trim(Ophone-number).
+       display Oroll.
+       display Ojoin-date.
+       
+       display "間違いはないですか？ [y/n]".
+       accept yesno.
+       if yesno == "y" then
+           go to exec-write.
+       else
+           go to exec-search-maximum-userid
+       end-if
+
+exec-write.
+       open output out-user.
+       write out-user-rec.
+       close userfile.
+
        stop run.
-*>
+
