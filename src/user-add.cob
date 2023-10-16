@@ -71,6 +71,7 @@ working-storage section.
        01 yesno pic X.
        
 procedure division.
+main section.
        display "勤怠管理システム".
        display "ユーザー追加モード".
 
@@ -95,113 +96,101 @@ exec-accept-username.
        open input user-file.
        perform until user-status not = "00"
            read user-file
-               not at end perform validate-username-double
+               not at end if Ousername = Fusername then
+                   go to occurred-username-double
+               end-if
        end-perform.
        close user-file.
 
        if function length(function trim(Ousername)) < 1 then
-           perform occurred-username-minimum
+           go to occurred-username-minimum
        end-if.
 
        if function length(function trim(Ousername)) > 64 then
-           perform occurred-username-maximum
+           go to occurred-username-maximum
        end-if.
 
        go to exec-accept-lastname.
 
-validate-username-double section.
-       if Ousername equal Fusername then
-           perform occurred-username-double
-       end-if.
-validate-username-double-exit.
-
-occurred-username-double section.
+occurred-username-double.
        display "ユーザ名が重複しています".
        close user-file.
        go to exec-accept-username.
 occurred-username-double-exit.
 
-occurred-username-minimum section.
+occurred-username-minimum.
        display "ユーザ名は1文字以上にしてください".
        go to exec-accept-username.
-occurred-username-minimum-exit.
 
-occurred-username-maximum section.
+occurred-username-maximum.
        display "ユーザ名は64文字以下にしてください".
        go to exec-accept-username.
-occurred-username-maximum-exit.
 
 exec-accept-lastname.
        display "姓 ([1-32]文字)".
        accept Olastname.
 
        if function length(function trim(Olastname)) < 1 then
-           perform occurred-lastname-minimum
+           go to occurred-lastname-minimum
        end-if.
 
        if function length(function trim(Olastname)) > 32 then
-           perform occurred-lastname-maximum
+           go to occurred-lastname-maximum
        end-if.
 
        go to exec-accept-firstname.
 
-occurred-lastname-minimum section.
+occurred-lastname-minimum.
        display "1文字以上の姓を入力してください".
        go to exec-accept-lastname.
-occurred-lastname-minimum-exit.
 
-occurred-lastname-maximum section.
+occurred-lastname-maximum.
        display "32文字以下の姓を入力してください".
        go to exec-accept-lastname.
-occurred-lastname-maximum-exit.
 
 exec-accept-firstname.
        display "名 ([1-32]文字)".
        accept Ofirstname.
 
        if function length(function trim(Ofirstname)) < 1 then
-           perform occurred-firstname-minimum
+           go to occurred-firstname-minimum
        end-if.
 
        if function length(function trim(Ofirstname)) > 32 then
-           perform occurred-firstname-maximum
+           go to occurred-firstname-maximum
        end-if.
 
        go to exec-accept-password.
 
-occurred-firstname-minimum section.
+occurred-firstname-minimum.
        display "1文字以上の名を入力してください".
        go to exec-accept-firstname.
-occurred-firstname-minimum-exit.
 
-occurred-firstname-maximum section.
+occurred-firstname-maximum.
        display "32文字以下の名を入力してください".
        go to exec-accept-firstname.
-occurred-firstname-maximum-exit.
 
 exec-accept-password.
        display "パスワード ([1-20]文字)".
        accept Opswd.
 
        if function length(function trim(Opswd)) < 1 then
-           perform occurred-password-minimum
+           go to occurred-password-minimum
        end-if.
 
        if function length(function trim(Opswd)) > 20 then
-           perform occurred-password-maximum
+           go to occurred-password-maximum
        end-if.
 
        go to exec-accept-gender.
 
-occurred-password-minimum section.
+occurred-password-minimum.
        display "1文字以上のパスワードを入力してください".
        go to exec-accept-password.
-occurred-password-minimum-exit.
 
-occurred-password-maximum section.
+occurred-password-maximum.
        display "20文字以下のパスワードを入力してください".
        go to exec-accept-password.
-occurred-password-maximum-exit.
 
 exec-accept-gender.
        display "性別ID:".
@@ -214,49 +203,41 @@ exec-accept-gender.
        close gender-file.
        accept Ogender. *> ここで入力
 
-       open read gender-file.
-       perform until gender-status == "00"
+       open input gender-file.
+       perform until gender-status = "00"
            read gender-file
-               not at end perform validate-genderid
+               not at end if Ogender = Fgender-id then
+                   go to exec-accept-roll
+               end-if
        end-perform.
 
        close gender-file.
        display "性別IDが一致しません"
        go to exec-accept-gender.
 
-validate-genderid section.
-       if Ogender == Fgender-id then
-           go to exec-accept-roll
-       end-if.
-validate-genderid-exit.
-
 exec-accept-roll.
        close gender-file.
        display "役職ID:".
        
-       open read roll-file.
-       perform until roll-status == "00"
+       open input roll-file.
+       perform until roll-status not = "00"
            read roll-file
                not at end display Froll-rec
        end-perform.
        close roll-file.
        accept Oroll. *> ここで入力
 
-       open read roll-file.
-       perform until roll-status == "00"
+       open input roll-file.
+       perform until roll-status not = "00"
            read roll-file
-               not at end perform validate-rollid
+               not at end if Oroll = Froll-id
+                  go to exec-accept-address *> 該当項目を見つけた
+              end-if
        end-perform.
 
        close roll-file.
        display "役職IDが一致しません"
        go to exec-accept-roll.
-
-validate-rollid section.
-       if Irollid == Froll
-           goto exec-accept-address *> 該当項目を見つけた
-       end-if.
-validate-rollid-exit.
 
 exec-accept-address.
        close roll-file.
@@ -308,19 +289,19 @@ exec-yesno.
        display function trim(Ophone-number).
        display Oroll.
        display Ojoin-date.
-       
+
        display "間違いはないですか？ [y/n]".
        accept yesno.
-       if yesno == "y" then
-           go to exec-write.
+       if yesno = "y" then
+           go to exec-write
        else
            go to exec-search-maximum-userid
-       end-if
+       end-if.
 
 exec-write.
        open output out-user.
        write out-user-rec.
-       close userfile.
+       close out-user.
 
        stop run.
 
