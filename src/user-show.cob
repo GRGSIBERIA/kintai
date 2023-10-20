@@ -113,7 +113,7 @@ search-userid.
        
 search-username.
        display "ユーザ名を入力してください".
-       accept Fusername.
+       accept Iusername.
        move 1 to read-cnt.
 
        open input user-file.
@@ -130,7 +130,7 @@ search-username.
 
 search-lastname.
        display "姓を入力してください".
-       accept Flastname.
+       accept Ilastname.
        move 1 to read-cnt.
 
        open input user-file.
@@ -146,7 +146,7 @@ search-lastname.
 
 search-firstname.
        display "名を入力してください".
-       accept Ffirstname.
+       accept Ifirstname.
        move 1 to read-cnt.
 
        open input user-file.
@@ -163,7 +163,7 @@ search-firstname.
 search-phone.
        display "電話番号を入力してください".
        display "ハイフンの有無を区別します".
-       accept Fphone-number.
+       accept Iphone-number.
        move 1 to read-cnt.
 
        open input user-file.
@@ -180,7 +180,7 @@ search-phone.
 
 search-email.
        display "メールアドレスを入力してください".
-       accept Femail.
+       accept Iemail.
        move 1 to read-cnt.
 
        open input user-file.
@@ -197,14 +197,16 @@ search-email.
 
 search-address.
        display "住所を入力してください（全角半角区別します)".
-       accept Faddress.
+       accept Iaddress.
        move 1 to read-cnt.
-
+       
        open input user-file.
        perform until user-status not = "00"
            read user-file
-           inspect function trim(inspect-address) tallying
-               inspect-address-cnt for all function trim(Faddress)
+
+           move zero to inspect-address-cnt *> zeroクリアしないと加算され続ける
+           inspect Faddress tallying
+               inspect-address-cnt for all function trim(Iaddress)
 
            if inspect-address-cnt > 0 then
                perform display-user
@@ -245,6 +247,7 @@ search-failed.
 
 end-procedure.
        display "照会を続けますか？ [y/n]".
+       accept yes-no.
        if yes-no = "y" then
            display " "
            go to main-procedure
