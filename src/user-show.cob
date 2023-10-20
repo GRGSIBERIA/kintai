@@ -42,6 +42,7 @@ working-storage section.
        01 inspect-address pic N(70).
        01 inspect-address-cnt pic 99.
        01 read-cnt pic 9(7).
+       01 yes-no pic X.
        01 Iuser-rec.
                03 Iuserid pic 9(7).
                03 Iusername pic X(64).
@@ -242,6 +243,15 @@ search-failed.
        display "見つかりませんでした".
        go to main-procedure.
 
+end-procedure.
+       display "照会を続けますか？ [y/n]".
+       if yes-no = "y" then
+           display " "
+           go to main-procedure
+       end-if.
+
+       stop run.
+
 display-user section.
        display read-cnt "件目のデータです".
        display "userid: " Fuserid.
@@ -255,7 +265,3 @@ display-user section.
        display "join date:" Fjoin-date(1:4) "年" Fjoin-date(5:2) "月" Fjoin-date(7:2) "日".
        display " "
        exit.
-
-end-procedure.
-       display 
-       stop run.
