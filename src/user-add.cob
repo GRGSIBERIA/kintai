@@ -466,12 +466,12 @@ exec-user-auth.
        close user-file.
        
 exec-write.
-       open output out-user.
+       open extend out-user.
        write out-user-rec.
        close out-user.
        display "書き込みが完了しました".
 
-       open output log-file.
+       open extend log-file.
        move function current-date to log-timestamp.
        string
            "[INFO]:" delimited by size
