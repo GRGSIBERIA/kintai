@@ -69,15 +69,6 @@ working-storage section.
            03 Ophone-number pic X(14).
            03 Oroll pic 9(2).
            03 Ojoin-date pic X(21).
-       01 flags-rec.
-           03 flag-username pic 9 value 0.
-           03 flag-firstname pic 9 value 0.
-           03 flag-lastname pic 9 value 0.
-           03 flag-pswd pic 9 value 0.
-           03 flag-address pic 9 value 0.
-           03 flag-email pic 9 value 0.
-           03 flag-phone-number pic 9 value 0.
-           03 flag-roll pic 9 value 0.
        01 select-userid pic 9(7).
        01 mode-select pic 9.
        01 auth-rec.
@@ -180,7 +171,6 @@ correct-username.
            go to correct-username
        end-if.
 
-       move 1 to flag-username.
        go to authenticate-procedure.
 
 correct-firstname.
