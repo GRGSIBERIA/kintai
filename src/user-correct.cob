@@ -80,6 +80,10 @@ working-storage section.
            03 flag-roll pic 9 value 0.
        01 select-userid pic 9(7).
        01 mode-select pic 9.
+       01 auth-rec.
+           03 auth-username pic X(64).
+           03 auth-password pic X(20).
+           03 auth-cnt pic 9 value 0.
 procedure division.
        display "勤怠管理システム".
        display "ユーザデータ修正モード".
@@ -111,6 +115,10 @@ correct-procedure.
        display function trim(Fphone-number).
        display Froll.
        display Fjoin-date.
+
+       *> Ouser-recに変更したい内容が転記される
+       *> これによって、Ouser-recを変更した項目のみが反映される
+       *> Fuser-recを使わないのは、データの照会に
        move Fuser-rec to Ouser-rec.
 
 attention-procedure.
@@ -163,15 +171,14 @@ correct-username.
        end-if.
 
        open input user-file.
-       perform until user-status not = "00"
-           read user-file
-           if Ousername = Fusername then
-               display "ユーザ名が重複しています"
-               display "ほかの候補を考えてください"
-               close user-file
-               go to correct-username
-           end-if
-       end-perform.
+       move select-userid to user-key.
+       read user-file.
+       if Ousername = Fusername then
+           display "ユーザ名が重複しています"
+           display "ほかの候補を考えてください"
+           close user-file
+           go to correct-username
+       end-if.
 
        move 1 to flag-username.
        go to authenticate-procedure.
@@ -191,6 +198,43 @@ correct-phone-number.
 correct-roll.
 
 authenticate-procedure.
+       display "承認者のユーザ名を入力してください".
+       accept auth-username.
+       display "承認者のパスワードを入力してください".
+       accept auth-password.
+
+       open input user-file.
+       perform until user-status not = "00"
+           read user-file
+           if Fuser-id = auth-username and Fpswd = auth-password then
+               close user-file
+               go to end-procedure
+           end-if
+       end-perform.
+       close user-file.
+
+       if auth-cnt < 3 then
+           display "該当する承認者がいません".
+           display "もう一度入力してください".
+           add 1 to auth-cnt.
+           go to authenticate-procedure
+       end-if.
+
+       display "3回間違えたのでプログラムを強制終了します".
+
+       move function current-date to log-timestamp.
+       string
+           "[ERRO] " delimited by size
+           auth-username delimited by size
+           " failed authenticattion 3 times."
+           into log-comments
+       end-string.
+
+       open extend log-file.
+       write log-rec.
+       close log-file.
+
+       stop run.
 
 end-procedure.
        open input user-file.
@@ -205,17 +249,17 @@ end-procedure.
 
        display "ユーザが見つかりませんでした:" select-userid.
        display "強制終了します".
-       go to stop-procedure.
+       stop run.
 
 finalize-procedure.
        *> user-keyに書き出す相対番号を指定する
        move select-userid to user-key.
        open output user-file.
-       write Fuser-rec.    *> user-keyにレコードが転記される
+       write Ouser-rec.    *> user-keyにレコードが転記される
        close user-file.
 
+logging-procedure.
        move function current-date to log-timestamp.
-
        open extend log-file.
        string
            "[INFO] " delimited by size
