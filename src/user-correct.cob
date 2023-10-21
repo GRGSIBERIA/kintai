@@ -71,6 +71,7 @@ working-storage section.
            03 Ojoin-date pic X(21).
        01 select-userid pic 9(7).
        01 mode-select pic 9.
+       01 phone-tallying pic 9.
        01 auth-rec.
            03 auth-username pic X(64).
            03 auth-password pic X(20).
@@ -151,7 +152,7 @@ attention-procedure.
 correct-username.
        accept Ousername.
 
-       if function length(function trim(Ousername)) < 0 then
+       if function length(function trim(Ousername)) < 1 then
            display "ユーザ名は1文字以上で入力してください"
            go to correct-username
        end-if.
@@ -174,18 +175,115 @@ correct-username.
        go to authenticate-procedure.
 
 correct-firstname.
-       
+       accept Ofirstname.
+
+       if function length(function trim(Ofirstname)) < 1 then
+           display "名は1文字以上で入力してください"
+           go to correct-firstname
+       end-if.
+
+       if function length(function trim(Ofirstname)) > 64 then
+           display "名は64文字以下で入力してください"
+           go to correct-firstname
+       end-if.
+
+       go to authenticate-procedure.
 correct-lastname.
+       accept Olastname.
+
+       if function length(function trim(Olastname)) < 1 then
+           display "姓は1文字以上で入力してください"
+           go to correct-lastname
+       end-if.
+
+       if function length(function trim(Olastname)) > 64 then
+           display "姓は64文字以下で入力してください"
+           go to correct-lastname
+       end-if.
+
+       go to authenticate-procedure.
 
 correct-pswd.
+       accept Opswd.
+
+       if function length(function trim(Opswd)) < 1 then
+           display "パスワードは1文字以上で入力してください"
+           go to correct-pswd
+       end-if.
+
+       if function length(function trim(Opswd)) > 64 then
+           display "パスワードは64文字以下で入力してください"
+           go to correct-pswd
+       end-if.
+
+       go to authenticate-procedure.
 
 correct-address.
+       accept Oaddress.
+
+       if function length(function trim(Oaddress)) < 1 then
+           display "住所は1文字以上で入力してください"
+           go to correct-address
+       end-if.
+
+       if function length(function trim(Oaddress)) > 70 then
+           display "住所は70文字以下で入力してください"
+           go to correct-address
+       end-if.
+
+       go to authenticate-procedure.
 
 correct-email.
+       
+       go to authenticate-procedure.
 
 correct-phone-number.
+       accept Ophone-number.
 
+       if function length(function trim(Ophone-number)) < 1 then
+           display "電話番号は1文字以上で入力してください"
+           go to correct-pswd
+       end-if.
+
+       if function length(function trim(Ophone-number)) > 14 then
+           display "電話番号は14文字以下で入力してください"
+           go to correct-pswd
+       end-if.
+
+       move 0 to phone-tallying.
+       inspect function trim(Ophone-number)
+           tallying phone-tallying for all "--".
+           
+       if phone-tallying > 0 then
+           display "ハイフンが連続しています"
+           go to correct-phone-number
+       end-if.
+
+       go to authenticate-procedure.
 correct-roll.
+       display "役職IDを表示します".
+       open input roll-file.
+       perform until roll-status not = "00"
+           read roll-file
+           display roll-rec
+       end-perform.
+       close roll-file.
+
+       display "役職IDを入力してください".
+       accept Oroll.
+
+       open input roll-file.
+       perform until roll-status not = "00"
+           read roll-file
+           if Froll-id = Oroll then
+               close roll-file
+               go to authenticate-procedure    *> ここで認証に飛ばす
+           end-if
+       end-perform.
+       close roll-file.
+
+       display "役職IDが正しくありません".
+       go to correct-roll.
 
 authenticate-procedure.
        display "承認者のユーザ名を入力してください".
