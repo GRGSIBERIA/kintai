@@ -474,9 +474,7 @@ exec-write.
        open extend log-file.
        move function current-date to log-timestamp.
        string
-           "[INFO]:" delimited by size
-           log-timestamp delimited by size
-           " " delimited by size
+           "[INFO] " delimited by size
            Fusername delimited by size
            " running add_user, joined " delimited by size
            join-user delimited by size
