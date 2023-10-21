@@ -452,7 +452,7 @@ exec-user-auth.
                    " running add_user, but failed 3 times authentication." delimited by size
                    into log-comments
                
-               open output log-file
+               open extend log-file
                write log-rec
                close log-file
 
