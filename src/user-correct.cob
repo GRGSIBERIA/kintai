@@ -14,11 +14,6 @@ input-output section.
                access mode sequential
                relative key roll-key
                status roll-status.
-           select gender-file assign to "./dat/gender.dat"
-               organization relative
-               access mode sequential
-               relative key gender-key
-               status gender-status.
            select log-file assign to "./dat/log.dat"
                organization line sequential.
 data division.
@@ -40,10 +35,6 @@ file section.
            01 roll-rec.
                03 Froll-id pic 9(2).
                03 Froll-name pic N(10).
-       fd gender-file.
-           01 gender-rec.
-               03 Fgender-id pic 9(2).
-               03 Fgender-name pic N(10).
        fd log-file.
            01 log-rec.
                03 log-timestamp pic X(21).
