@@ -14,6 +14,10 @@ input-output section.
                access mode sequential
                relative key stamp-key
                status stamp-status.
+           select status-file assign to "./dat/status.dat"
+               organization relative
+               access mode sequential
+               status status-status.
            select log-file assign to "./dat/log.dat"
                organization relative
                access mode sequential
@@ -36,9 +40,13 @@ file section.
        fd stamp-file.
            01 Fstamp-rec.
                03 Fstamp-id pic 9(12).
-               03 Fuser-id pic 9(7).
+               03 Fstamp-userid pic 9(7).
                03 Fstamp-datetime pic X(21).
-               03 Fstatusid pic 9.
+               03 Fstamp-statusid pic 9.
+       fd status-file.
+           01 Fstatus-rec.
+               03 Fstatus-id pic 9.
+               03 Fstatus-name pic N(5).
        fd log-file.
            01 Flog-rec.
                03 log-timestamp pic X(21).
@@ -50,6 +58,7 @@ working-storage section.
        01 status-rec.
            03 user-status pic XX.
            03 stamp-status pic XX.
+           03 status-status pic XX.
        01 auth-rec.
            03 auth-username pic X(64).
            03 auth-password pic X(20).
@@ -110,4 +119,41 @@ authenticate-logging.
        stop run.
 
 stamp-procedure.
-       
+       move Fuser-id to Fstamp-userid.
+       move function current-date to Fstamp-datetime.
+
+       display "以下の番号を入力してください".
+       open input status-file.
+       perform until status-status not = "00"
+           read status-file
+           display Fstatus-rec
+       end-perform.
+       close status-file.
+
+       accept Fstamp-statusid.
+       open input status-file.
+       perform until status-status not = "00"
+           read status-file
+           if Fstamp-statusid = Fstatus-id then
+               move Fstatus-id to Fstamp-statusid
+               go to write-procedure
+           end-if
+       end-perform.
+
+       display "ステータスが存在しません".
+       display "もう一度、入力してください".
+       go to stamp-procedure.
+
+write-procedure.
+       move stamp-key to Fstamp-id.
+
+       open extend stamp-file.
+       write Fstamp-rec.
+       close stamp-file.
+
+       display "打刻しました".
+       display function trim(Flastname) " " function trim(Ffirstname).
+       display Fstamp-Fstamp-datetime.
+       display Fstatus-name.
+
+       stop run.
