@@ -72,6 +72,11 @@ working-storage section.
        01 select-userid pic 9(7).
        01 mode-select pic 9.
        01 phone-tallying pic 9.
+       01 mail-rec.
+           03 mail-tallying pic 9.
+           03 mail-domain pic X(254).
+           03 mail-local pic X(254).
+       
        01 auth-rec.
            03 auth-username pic X(64).
            03 auth-password pic X(20).
@@ -152,7 +157,7 @@ attention-procedure.
 correct-username.
        accept Ousername.
 
-       if function length(function trim(Ousername)) < 1 then
+       if function length(function trim(Ousername)) < 0 then
            display "ユーザ名は1文字以上で入力してください"
            go to correct-username
        end-if.
@@ -177,7 +182,7 @@ correct-username.
 correct-firstname.
        accept Ofirstname.
 
-       if function length(function trim(Ofirstname)) < 1 then
+       if function length(function trim(Ofirstname)) < 0 then
            display "名は1文字以上で入力してください"
            go to correct-firstname
        end-if.
@@ -191,7 +196,7 @@ correct-firstname.
 correct-lastname.
        accept Olastname.
 
-       if function length(function trim(Olastname)) < 1 then
+       if function length(function trim(Olastname)) < 0 then
            display "姓は1文字以上で入力してください"
            go to correct-lastname
        end-if.
@@ -206,7 +211,7 @@ correct-lastname.
 correct-pswd.
        accept Opswd.
 
-       if function length(function trim(Opswd)) < 1 then
+       if function length(function trim(Opswd)) < 0 then
            display "パスワードは1文字以上で入力してください"
            go to correct-pswd
        end-if.
@@ -221,7 +226,7 @@ correct-pswd.
 correct-address.
        accept Oaddress.
 
-       if function length(function trim(Oaddress)) < 1 then
+       if function length(function trim(Oaddress)) < 0 then
            display "住所は1文字以上で入力してください"
            go to correct-address
        end-if.
@@ -234,13 +239,76 @@ correct-address.
        go to authenticate-procedure.
 
 correct-email.
+       accept Oemail.
+
+       if function length(function trim(Oemail)) < 5 then
+           display "メールアドレスは5文字以上で入力してください"
+           go to correct-email
+       end-if.
+
+       if function length(function trim(Oemail)) > 254 then
+           display "メールアドレスは254文字以下で入力してください"
+           go to correct-email
+       end-if.
+
+       move 0 to mail-tallying.
+       inspect function trim(Oemail)
+           tallying mail-tallying for all "..".
        
+       if mail-tallying > 0 then
+           display "メールアドレスでピリオドが2つ連続しています"
+           go to correct-email
+       end-if.
+
+       if Oemail(function length(function trim(Oemail)):1) = "." then
+           display "メールアドレス終端にピリオドがあります"
+           go to correct-email
+       end-if.
+
+       move 0 to mail-tallying.
+       inspect function trim(Oemail)
+           tallying mail-tallying for all " ".
+
+       if mail-tallying > 0 then
+           display "メールアドレスに空白があります"
+           go to correct-email
+       end-if.
+
+       if Oemail(1:1) = "." then
+           display "メールアドレス始端にピリオドがあります"
+           go to correct-email
+       end-if.
+
+       move 0 to mail-tallying.
+       unstring Oemail delimited by "@"
+           into mail-local mail-domain
+           tallying in mail-tallying.
+       
+       if mail-tallying > 1 then
+           display "@が2以上あります"
+           go to correct-email
+       end-if.
+
+       if mail-local(function length(function trim(mail-local)):1) = "." then
+           display "ローカル部の終端にピリオドがあります"
+           go to correct-email
+       end-if.
+
+       move 0 to mail-tallying.
+       inspect function trim(mail-domain)
+           tallying mail-tallying for all ".".
+       
+       if mail-tallying <= 0 then
+           display "ドメイン部には1つ以上のピリオドが必要です"
+           go to correct-email
+       end-if.
+
        go to authenticate-procedure.
 
 correct-phone-number.
        accept Ophone-number.
 
-       if function length(function trim(Ophone-number)) < 1 then
+       if function length(function trim(Ophone-number)) < 0 then
            display "電話番号は1文字以上で入力してください"
            go to correct-pswd
        end-if.
