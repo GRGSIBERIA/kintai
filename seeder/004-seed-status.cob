@@ -12,7 +12,7 @@ file section.
        fd status-file.
            01 Fstatus-rec.
                03 Fid pic 9.
-               03 Fname pic N(4).
+               03 Fname pic N(5).
 working-storage section.
 
 procedure division.
@@ -37,14 +37,13 @@ procedure division.
        write Fstatus-rec.
 
        move 5 to Fid.
-       move "休憩始".
+       move "休憩始" to Fname.
        write Fstatus-rec.
 
        move 6 to Fid.
-       move "休憩終".
+       move "休憩終" to Fname.
        write Fstatus-rec.
 
        close status-file.
 
        stop run.
-       
