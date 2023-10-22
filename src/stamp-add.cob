@@ -54,11 +54,12 @@ file section.
 working-storage section.
        01 key-rec.
            03 user-key pic 9(7).
-           03 stamp-key pic 9(12)
+           03 stamp-key pic 9(12).
        01 status-rec.
            03 user-status pic XX.
            03 stamp-status pic XX.
            03 status-status pic XX.
+           03 log-status pic XX.
        01 auth-rec.
            03 auth-username pic X(64).
            03 auth-password pic X(20).
@@ -153,7 +154,7 @@ write-procedure.
 
        display "打刻しました".
        display function trim(Flastname) " " function trim(Ffirstname).
-       display Fstamp-Fstamp-datetime.
+       display Fstamp-datetime.
        display Fstatus-name.
 
        stop run.
