@@ -370,9 +370,9 @@ authenticate-procedure.
        close user-file.
 
        if auth-cnt < 3 then
-           display "該当する承認者がいません".
-           display "もう一度入力してください".
-           add 1 to auth-cnt.
+           display "該当する承認者がいません"
+           display "もう一度入力してください"
+           add 1 to auth-cnt
            go to authenticate-procedure
        end-if.
 
@@ -410,8 +410,9 @@ end-procedure.
 finalize-procedure.
        *> user-keyに書き出す相対番号を指定する
        move select-userid to user-key.
+       move Ouser-rec to Fuser-rec.
        open output user-file.
-       write Ouser-rec.    *> user-keyにレコードが転記される
+       write Fuser-rec.    *> user-keyにレコードが転記される
        close user-file.
 
 logging-procedure.
