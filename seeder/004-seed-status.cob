@@ -24,23 +24,23 @@ procedure division.
        move "出勤" to Fname.
        write Fstatus-rec.
 
-       move 2 to Fid.
+       add 1 to Fid.
        move "退勤" to Fname.
        write Fstatus-rec.
 
-       move 3 to Fid.
+       add 1 to Fid.
        move "直行" to Fname.
        write Fstatus-rec.
 
-       move 4 to Fid.
+       add 1 to Fid.
        move "直帰" to Fname.
        write Fstatus-rec.
 
-       move 5 to Fid.
+       add 1 to Fid.
        move "休憩始" to Fname.
        write Fstatus-rec.
 
-       move 6 to Fid.
+       add 1 to Fid.
        move "休憩終" to Fname.
        write Fstatus-rec.
 
