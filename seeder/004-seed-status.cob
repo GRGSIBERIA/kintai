@@ -1,0 +1,49 @@
+identification division.
+program-id. seed-status.
+environment division.
+input-output section.
+       file-control.
+       select status-file assign to "./dat/status.dat"
+           organization is relative
+           access mode sequential.
+
+data division.
+file section.
+       fd status-file.
+           01 Fstatus-rec.
+               03 Fid pic 9.
+               03 Fname pic N(5).
+working-storage section.
+
+procedure division.
+       display "ステータスを追加します".
+
+       open output status-file.
+       
+       move 1 to Fid.
+       move "出勤" to Fname.
+       write Fstatus-rec.
+
+       add 1 to Fid.
+       move "退勤" to Fname.
+       write Fstatus-rec.
+
+       add 1 to Fid.
+       move "直行" to Fname.
+       write Fstatus-rec.
+
+       add 1 to Fid.
+       move "直帰" to Fname.
+       write Fstatus-rec.
+
+       add 1 to Fid.
+       move "休憩始" to Fname.
+       write Fstatus-rec.
+
+       add 1 to Fid.
+       move "休憩終" to Fname.
+       write Fstatus-rec.
+
+       close status-file.
+
+       stop run.

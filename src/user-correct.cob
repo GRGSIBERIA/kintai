@@ -14,11 +14,6 @@ input-output section.
                access mode sequential
                relative key roll-key
                status roll-status.
-           select gender-file assign to "./dat/gender.dat"
-               organization relative
-               access mode sequential
-               relative key gender-key
-               status gender-status.
            select log-file assign to "./dat/log.dat"
                organization line sequential.
 data division.
@@ -40,10 +35,6 @@ file section.
            01 roll-rec.
                03 Froll-id pic 9(2).
                03 Froll-name pic N(10).
-       fd gender-file.
-           01 gender-rec.
-               03 Fgender-id pic 9(2).
-               03 Fgender-name pic N(10).
        fd log-file.
            01 log-rec.
                03 log-timestamp pic X(21).
@@ -370,9 +361,9 @@ authenticate-procedure.
        close user-file.
 
        if auth-cnt < 3 then
-           display "該当する承認者がいません".
-           display "もう一度入力してください".
-           add 1 to auth-cnt.
+           display "該当する承認者がいません"
+           display "もう一度入力してください"
+           add 1 to auth-cnt
            go to authenticate-procedure
        end-if.
 
@@ -381,7 +372,7 @@ authenticate-procedure.
        move function current-date to log-timestamp.
        string
            "[ERRO] " delimited by size
-           auth-username delimited by size
+           function trim(auth-username) delimited by size
            " failed authenticattion 3 times."
            into log-comments
        end-string.
@@ -410,8 +401,9 @@ end-procedure.
 finalize-procedure.
        *> user-keyに書き出す相対番号を指定する
        move select-userid to user-key.
+       move Ouser-rec to Fuser-rec.
        open output user-file.
-       write Ouser-rec.    *> user-keyにレコードが転記される
+       write Fuser-rec.    *> user-keyにレコードが転記される
        close user-file.
 
 logging-procedure.
