@@ -372,7 +372,7 @@ authenticate-procedure.
        move function current-date to log-timestamp.
        string
            "[ERRO] " delimited by size
-           auth-username delimited by size
+           function trim(auth-username) delimited by size
            " failed authenticattion 3 times."
            into log-comments
        end-string.
