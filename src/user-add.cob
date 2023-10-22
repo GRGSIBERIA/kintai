@@ -264,8 +264,8 @@ exec-accept-email.
 
        move zero to email-tallying.
        unstring Oemail delimited by "@"
-       into email-local email-domain
-       tallying in email-tallying.
+           into email-local email-domain
+           tallying in email-tallying.
        
        if email-tallying not = 2 then
            display "ローカル部とドメイン部の区切り@が正しくありません"
