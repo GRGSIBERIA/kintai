@@ -74,8 +74,7 @@ working-storage section.
            03 Dstamp-datetime pic X(21).
            03 Dstamp-statusid pic 9.
 
-       01 Dstamp-page pic 9(11) value 0.
-       01 Dstamp-name pic N(5).
+       01 stamp-name pic N(5).
        01 Dstamp-count pic 9(12) value 0.
        01 command pic X.
 
@@ -140,7 +139,7 @@ show-stamp-procedure.
        move zero to Dstamp-count.
 
        open input stamp-file.
-       perform until stamp-status = "00"
+       perform until stamp-status not = "00"
            read Dstamp-rec
            if Dstamp-userid = Fuser-id then
                add 1 to Dstamp-count
@@ -149,35 +148,7 @@ show-stamp-procedure.
        close stamp-file.
 
        display Dstamp-count " 件のデータが見つかりました".
-
-move-stamp-procedure.
-       *> 本人がログインしているなら、別の操作は行わないので永続化する
-       open input stamp-file.
-
-       move 1 to Dstamp-cnt.
-       compute stamp-key = Dstamp-page * Dstamp-cnt.
-       perform until stamp-status not = "00"
-           read stamp-file
-           if Fstamp-userid = Fuser-id then
-               move Fstamp-rec to Dstamp-rec(Dstamp-cnt)
-               add 1 to Dstamp-cnt
-
-               if Dstamp-cnt > Dstamp-rec-num then
-                   go to display-stamp-procedure
-               end-if
-           end-if
-       end-perform.
-
-display-stamp-procedure.
-       move 1 to Dstamp-cnt.
-       open input status-file.
-       perform until Dstamp-cnt <= Dstamp-rec-num
-           move Dstamp-statusid to status-key
-           read status-file
-
-           display Dstamp-id " " Dstamp-datetime " " Fstatus-name
-       end-perform.
-       close status-file.
+       open input stamp-file.  *> プログラムが終了するまで永続化する
 
 command-accept.
        display "[f]irst, [b]ack, [n]ext, [l]ast, [e]xit".
@@ -185,18 +156,97 @@ command-accept.
 
        evaluate command
        when "f"
-           move 0 to Dstamp-page
+           move 1 to stamp-key
+           go to pagenation-stamp-next
        when "n"
-           add 1 to Dstamp-page
+           go to pagenation-stamp-next
        when "b"
-           subtract 1 from Dstamp-page
+           
        when "l"
-           compute Dstamp-page = Dstamp-count / Dstamp-rec-num
+           move Dstamp-count to stamp-key
        when "e"    *> exitコマンドが投入されたら終了する
-           close stamp-file
+           close stamp-file    *> プログラムが終了したので永続化を切る
            stop run
        when other
            display "認識できないコマンドです"
            go to command-accept
        end-evaluate.
 
+pagenation-stamp-next.
+       move zero to Dstamp-cnt.
+       perform until stamp-status not = "00"
+           read stamp-file
+
+           if Dstamp-userid = Fuser-id then
+               move Fstamp-rec to Dstamp-rec(Dstamp-cnt)
+               add 1 to Dstamp-cnt
+           end-if
+
+           if Dstamp-cnt > Dstamp-rec-num then
+               go to display-procedure
+           end-if
+       end-perform.
+
+       display "記録はここまでです".
+       go to command-accept.
+
+pagenation-stamp-back.
+       move zero to Dstamp-cnt.
+       subtract 1 from stamp-key.
+
+       if stamp-key <= 0 then
+           go to command-accept
+       end-if.
+
+       perform until stamp-status not = "00"
+           read stamp-file
+           move stamp-file to Dstamp-rec(Dstamp-cnt)
+
+           if Dstamp-userid = Fuser-id then
+               move Fstamp-rec to Dstamp-rec(Dstamp-cnt)
+               add 1 to Dstamp-cnt
+               subtract 2 from stamp-key   *> 読み込むと1件進むので、2件戻す
+
+               if stamp-key <= then
+                   go to command-accept
+               end-if
+           end-if
+
+           if Dstamp-cnt > Dstamp-rec-num then
+               go to display-back-procedure
+           end-if
+       end-perform.
+
+display-next-procedure.
+       open input status-file
+       move zero to Dstamp-cnt.
+       perform varying Dstamp-cnt 
+               from 1 by 1 until Dstamp-cnt < Dstamp-rec-num
+           
+           move Dstamp-statusid(Dstamp-cnt) to status-key
+           read status-file
+           
+           display 
+               Dstamp-id(Dstamp-cnt) " "
+               Dstamp-datetime(Dstamp-cnt) " "
+               Fstatus-name
+       end-perform.
+       close status-file.
+       go to command-accept.
+
+display-back-procedure.
+       open input status-file
+       move zero to Dstamp-cnt.
+       perform varying Dstamp-cnt
+               from Dstamp-rec-num by -1 until Dstamp-cnt > 0
+           
+           move Dstamp-statusid(Dstamp-cnt) to status-key
+           read status-file
+
+           display 
+               Dstamp-id(Dstamp-cnt) " "
+               Dstamp-datetime(Dstamp-cnt) " "
+               Fstatus-name
+       end-perform.
+       close status-file.
+       go to command-accept.
