@@ -44,6 +44,14 @@ procedure division.
        move "休憩終" to Fname.
        write Fstatus-rec.
 
+       add 1 to Fid.
+       move "病欠" to Fname.
+       write Fstatus-rec.
+
+       add 1 to Fid.
+       move "有給" to Fname.
+       write Fstatus-rec.
+
        close status-file.
 
        stop run.
